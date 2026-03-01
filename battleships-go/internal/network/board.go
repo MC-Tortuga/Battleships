@@ -4,20 +4,20 @@ import "battleships-go/pkg/models"
 
 type Board struct {
 	Ships       []*models.Ship
-	MissedShots map[Coordinate]struct{}
-	ShotHistory map[Coordinate]models.ShotResult
+	MissedShots map[models.Coordinate]struct{}
+	ShotHistory map[models.Coordinate]models.ShotResult
 }
 
 func NewBoard() *Board {
 	return &Board{
 
 		Ships:       make([]*models.Ship, 0),
-		MissedShots: make(map[Coordinate]struct{}),
-		ShotHistory: make(map[Coordinate]models.ShotResult),
+		MissedShots: make(map[models.Coordinate]struct{}),
+		ShotHistory: make(map[models.Coordinate]models.ShotResult),
 	}
 }
 
-func (b *Board) CanPlaceShip(shipType models.ShipType, start Coordinate, orientation models.Orientation) bool {
+func (b *Board) CanPlaceShip(shipType models.ShipType, start models.Coordinate, orientation models.Orientation) bool {
 	newShip := models.NewShip(shipType, start, orientation)
 	for _, c := range newShip.OccupiedCoordinates {
 		if !c.IsValid() {
@@ -36,7 +36,7 @@ func (b *Board) CanPlaceShip(shipType models.ShipType, start Coordinate, orienta
 	return true
 }
 
-func (b *Board) PlaceShip(shipType models.ShipType, start Coordinate, orientation models.Orientation) bool {
+func (b *Board) PlaceShip(shipType models.ShipType, start models.Coordinate, orientation models.Orientation) bool {
 	if !b.CanPlaceShip(shipType, start, orientation) {
 		return false
 	}
@@ -45,7 +45,7 @@ func (b *Board) PlaceShip(shipType models.ShipType, start Coordinate, orientatio
 	return true
 }
 
-func (b *Board) FireShot(target Coordinate) models.ShotResult {
+func (b *Board) FireShot(target models.Coordinate) models.ShotResult {
 	if !target.IsValid() {
 		return models.Miss
 	}

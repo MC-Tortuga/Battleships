@@ -60,3 +60,19 @@ const (
 	InvalidCoordinates
 	ShipSpecific
 )
+
+type PacketType byte
+
+const (
+	PktFireShot PacketType = iota
+	PktShotResult
+	PktPlaceShip
+	PktGameStart
+	PktTurnChange
+	PktGameOver
+	PktError
+	PktGameStateChange
+	PktPlacementComplete
+	PktPlacementRestart
+	PktTimeWarning
+)

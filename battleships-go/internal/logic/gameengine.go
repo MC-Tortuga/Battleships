@@ -45,12 +45,12 @@ func (e *GameEngine) CurrentPlayer() int {
 	return e.currentPlayer
 }
 
-func (e *GameEngine) PlaceShipForPlayer(shipType models.ShipType, start network.Coordinate, orientation models.Orientation, player int) bool {
+func (e *GameEngine) PlaceShipForPlayer(shipType models.ShipType, start models.Coordinate, orientation models.Orientation, player int) bool {
 	board := e.GetPlayerBoard(player)
 	return board.PlaceShip(shipType, start, orientation)
 }
 
-func (e *GameEngine) FireShot(target network.Coordinate) models.ShotResult {
+func (e *GameEngine) FireShot(target models.Coordinate) models.ShotResult {
 	opponentBoard := e.GetOpponentBoard(e.currentPlayer)
 	result := opponentBoard.FireShot(target)
 
@@ -89,7 +89,7 @@ func (e *GameEngine) GenerateRandomPlacement(player int) []*models.Ship {
 	for _, shipType := range e.standardShips {
 		success := false
 		for attempts := 0; attempts < 100; attempts++ {
-			start := network.Coordinate{X: r.Intn(10), Y: r.Intn(10)}
+			start := models.Coordinate{X: r.Intn(10), Y: r.Intn(10)}
 			orientation := models.Orientation(r.Intn(2))
 
 			if e.playerBoards[player-1].CanPlaceShip(shipType, start, orientation) {

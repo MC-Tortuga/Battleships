@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"net"
-	"sync"
 	"sync/atomic"
 )
 

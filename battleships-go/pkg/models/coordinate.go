@@ -1,4 +1,4 @@
-package network
+package models
 
 type Coordinate struct {
 	X int
