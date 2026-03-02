@@ -33,6 +33,8 @@ func (w *BinaryPacketWriter) Serialize(packet models.IPacket) ([]byte, error) {
 		w.writeInt32(int32(p.Coordinate.X))
 		w.writeInt32(int32(p.Coordinate.Y))
 	case *network.ShotResultPacket:
+		w.writeInt32(int32(p.Coordinate.X))
+		w.writeInt32(int32(p.Coordinate.Y))
 		w.buffer.WriteByte(byte(p.Result))
 		if p.Result == models.Sunk && p.SunkShipType != nil {
 			w.buffer.WriteByte(byte(*p.SunkShipType))

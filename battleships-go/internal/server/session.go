@@ -132,7 +132,7 @@ func (s *GameSession) runPlacementTimer(playerIdx int, timeout time.Duration) {
 }
 
 func (s *GameSession) randomizePlacement(playerIdx int) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + int64(playerIdx*1000000)))
 	ships := []models.ShipType{
 		models.Carrier,
 		models.Battleship,
@@ -226,14 +226,13 @@ func (s *GameSession) handleShot(playerIdx int, shot *network.ShotPacket) {
 		return
 	}
 
-	result := s.gameEngine.FireShot(shot.Coordinate)
+	result, sunkShip := s.gameEngine.FireShot(shot.Coordinate)
 	var sunkShipType *models.ShipType
-	if result == models.Sunk {
-		st := s.getSunkShipType()
-		sunkShipType = &st
+	if sunkShip != nil {
+		sunkShipType = sunkShip
 	}
 
-	resultPacket := network.NewShotResultPacket(result, sunkShipType)
+	resultPacket := network.NewShotResultPacket(shot.Coordinate, result, sunkShipType)
 	s.broadcast(resultPacket)
 
 	if s.gameEngine.IsGameOver() {
@@ -299,11 +298,11 @@ func joinStrings(strs []string) string {
 	return result
 }
 
-func (s *GameSession) getSunkShipType() models.ShipType {
-	return models.Carrier
-}
-
 func (s *GameSession) handlePlacementComplete(playerIdx int, packet *network.PlacementCompletePacket) {
+	if packet.UsedRandomPlacement {
+		s.randomizePlacement(playerIdx)
+	}
+
 	board := s.gameEngine.GetPlayerBoard(playerIdx + 1)
 	confirmPacket := network.NewPlacementCompletePacket(packet.UsedRandomPlacement, board.Ships)
 	s.sendPacket(playerIdx, confirmPacket)

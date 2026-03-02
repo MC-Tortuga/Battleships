@@ -46,11 +46,16 @@ func (b *Board) PlaceShip(shipType models.ShipType, start models.Coordinate, ori
 }
 
 func (b *Board) FireShot(target models.Coordinate) models.ShotResult {
+	result, _ := b.FireShotWithType(target)
+	return result
+}
+
+func (b *Board) FireShotWithType(target models.Coordinate) (models.ShotResult, *models.ShipType) {
 	if !target.IsValid() {
-		return models.Miss
+		return models.Miss, nil
 	}
 	if _, alreadyShot := b.ShotHistory[target]; alreadyShot {
-		return models.Miss
+		return models.Miss, nil
 	}
 
 	for _, ship := range b.Ships {
@@ -58,14 +63,18 @@ func (b *Board) FireShot(target models.Coordinate) models.ShotResult {
 
 		if result != models.Miss {
 			b.ShotHistory[target] = result
-			return result
+			if result == models.Sunk {
+				st := ship.Type
+				return result, &st
+			}
+			return result, nil
 		}
 	}
 
 	b.MissedShots[target] = struct{}{}
 	b.ShotHistory[target] = models.Miss
 
-	return models.Miss
+	return models.Miss, nil
 }
 
 func (b *Board) AreAllShipsSunk() bool {

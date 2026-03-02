@@ -23,7 +23,7 @@ func (r *BinaryPacketReader) Deserialize(data []byte) (models.IPacket, error) {
 	packetType := models.PacketType(data[0])
 	length := uint16(data[1])<<8 | uint16(data[2])
 
-	if len(data) != 3+int(length) {
+	if len(data) < 3+int(length) {
 		return nil, errors.New("packet length mismatch")
 	}
 
@@ -67,13 +67,19 @@ func (r *BinaryPacketReader) readShotPacket(payload []byte) *network.ShotPacket 
 }
 
 func (r *BinaryPacketReader) readShotResultPacket(payload []byte) *network.ShotResultPacket {
-	result := models.ShotResult(payload[0])
+	if len(payload) < 9 {
+		return network.NewShotResultPacket(models.Coordinate{}, models.Miss, nil)
+	}
+	x := int32(binary.BigEndian.Uint32(payload[0:4]))
+	y := int32(binary.BigEndian.Uint32(payload[4:8]))
+	coord := models.Coordinate{X: int(x), Y: int(y)}
+	result := models.ShotResult(payload[8])
 	var sunkShipType *models.ShipType
-	if len(payload) > 1 && result == models.Sunk {
-		st := models.ShipType(payload[1])
+	if len(payload) > 9 && result == models.Sunk {
+		st := models.ShipType(payload[9])
 		sunkShipType = &st
 	}
-	return network.NewShotResultPacket(result, sunkShipType)
+	return network.NewShotResultPacket(coord, result, sunkShipType)
 }
 
 func (r *BinaryPacketReader) readPlaceShipPacket(payload []byte) *network.PlaceShipPacket {

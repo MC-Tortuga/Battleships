@@ -18,12 +18,13 @@ func (p *ShotPacket) GetType() models.PacketType {
 }
 
 type ShotResultPacket struct {
+	Coordinate   models.Coordinate
 	Result       models.ShotResult
 	SunkShipType *models.ShipType
 }
 
-func NewShotResultPacket(result models.ShotResult, sunkShipType *models.ShipType) *ShotResultPacket {
-	return &ShotResultPacket{Result: result, SunkShipType: sunkShipType}
+func NewShotResultPacket(coord models.Coordinate, result models.ShotResult, sunkShipType *models.ShipType) *ShotResultPacket {
+	return &ShotResultPacket{Coordinate: coord, Result: result, SunkShipType: sunkShipType}
 }
 
 func (p *ShotResultPacket) GetType() models.PacketType {

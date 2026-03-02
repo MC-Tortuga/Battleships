@@ -28,11 +28,32 @@ type Client struct {
 
 const (
 	Empty = iota
-	Ship
+	Carrier
+	Battleship
+	Destroyer
+	Submarine
+	PatrolBoat
 	Miss
 	Hit
 	Sunk
 )
+
+func shipTypeChar(shipType models.ShipType) byte {
+	switch shipType {
+	case models.Carrier:
+		return Carrier
+	case models.Battleship:
+		return Battleship
+	case models.Destroyer:
+		return Destroyer
+	case models.Submarine:
+		return Submarine
+	case models.PatrolBoat:
+		return PatrolBoat
+	default:
+		return Empty
+	}
+}
 
 func NewClient() *Client {
 	return &Client{
@@ -67,13 +88,21 @@ func (c *Client) printBoards() {
 		}
 		fmt.Println()
 	}
-	fmt.Println("  ~ = empty, S = ship, M = miss, H = hit, X = sunk")
+	fmt.Println("  ~ = water, C = Carrier, B = Battleship, D = Destroyer, U = Submarine, P = PatrolBoat, M = miss, H = hit, X = sunk")
 }
 
 func cellChar(v byte) string {
 	switch v {
-	case Ship:
-		return "S"
+	case Carrier:
+		return "C"
+	case Battleship:
+		return "B"
+	case Destroyer:
+		return "D"
+	case Submarine:
+		return "U"
+	case PatrolBoat:
+		return "P"
 	case Miss:
 		return "M"
 	case Hit:
@@ -172,6 +201,16 @@ func (c *Client) handlePacket(packet models.IPacket) {
 		fmt.Printf("It's now Player %d's turn\n", p.PlayerId)
 
 	case *network.ShotResultPacket:
+		if p.Coordinate.X >= 0 && p.Coordinate.X < 10 && p.Coordinate.Y >= 0 && p.Coordinate.Y < 10 {
+			switch p.Result {
+			case Hit:
+				c.oppBoard[p.Coordinate.Y][p.Coordinate.X] = Hit
+			case Sunk:
+				c.oppBoard[p.Coordinate.Y][p.Coordinate.X] = Sunk
+			case Miss:
+				c.oppBoard[p.Coordinate.Y][p.Coordinate.X] = Miss
+			}
+		}
 		fmt.Printf("Shot result: %v\n", p.Result)
 
 	case *network.PlacementCompletePacket:
@@ -179,7 +218,7 @@ func (c *Client) handlePacket(packet models.IPacket) {
 			for _, ship := range p.PlacedShips {
 				for _, coord := range ship.OccupiedCoordinates {
 					if coord.X >= 0 && coord.X < 10 && coord.Y >= 0 && coord.Y < 10 {
-						c.myBoard[coord.Y][coord.X] = Ship
+						c.myBoard[coord.Y][coord.X] = shipTypeChar(ship.Type)
 					}
 				}
 			}

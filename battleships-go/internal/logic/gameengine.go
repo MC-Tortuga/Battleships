@@ -50,14 +50,14 @@ func (e *GameEngine) PlaceShipForPlayer(shipType models.ShipType, start models.C
 	return board.PlaceShip(shipType, start, orientation)
 }
 
-func (e *GameEngine) FireShot(target models.Coordinate) models.ShotResult {
+func (e *GameEngine) FireShot(target models.Coordinate) (models.ShotResult, *models.ShipType) {
 	opponentBoard := e.GetOpponentBoard(e.currentPlayer)
-	result := opponentBoard.FireShot(target)
+	result, sunkShip := opponentBoard.FireShotWithType(target)
 
 	if !opponentBoard.AreAllShipsSunk() {
 		e.SwitchPlayer()
 	}
-	return result
+	return result, sunkShip
 }
 
 func (e *GameEngine) IsGameOver() bool {
